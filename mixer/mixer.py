@@ -97,14 +97,15 @@ def update_data():
     t = np.linspace(0, 1, fs, False)
     audio_data = np.zeros(fs)
 
-
-    predefined_freq_values = [float(freq_edit.text()) for i, freq_edit in enumerate(freq_line_edits) if enabled_waves[i]]
-    predefined_amp_values =  [float(amp_edit.text() ) for i, amp_edit  in enumerate(amp_line_edits ) if enabled_waves[i]]
+    predefined_freq_values = [float(freq_edit.text()) for i, freq_edit in enumerate(freq_line_edits)
+                              if enabled_waves[i] and not mute_predefined_waves_checkbox.isChecked()]
+    predefined_amp_values = [float(amp_edit.text()) for i, amp_edit in enumerate(amp_line_edits)
+                              if enabled_waves[i] and not mute_predefined_waves_checkbox.isChecked()]
 
 
     custom_waves = parse_custom_waves(custom_input_edit.toPlainText())
     
-    if not custom_waves:
+    if not custom_waves or mute_custom_waves_checkbox.isChecked():
         print("No custom waves provided.")
         custom_freq_values = []
         custom_amp_values =  []
@@ -152,6 +153,13 @@ p = pyaudio.PyAudio()
 for freq_edit, amp_edit in zip(freq_line_edits, amp_line_edits):
     freq_edit.textChanged.connect(update_data)
     amp_edit.textChanged.connect (update_data)
+
+def update_enable_checkboxes(state):
+
+  for checkbox in enable_checkboxes:
+    checkbox.setEnabled(not state) 
+
+mute_predefined_waves_checkbox.stateChanged.connect(update_enable_checkboxes)
 
 for checkbox in enable_checkboxes:
     checkbox.stateChanged.connect(lambda state, checkbox = checkbox: update_enabled_waves(checkbox))
