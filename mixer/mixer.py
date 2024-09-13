@@ -128,8 +128,8 @@ def update_plot(audio_data, freqs, fft_data):
     plot.clear()
     plot.plot(freqs, np.abs(fft_data))
 
-    plot.setXRange(np.exp(0), np.max(np.abs(freqs)) / 5)
-    plot.setYRange(0,         np.max(np.abs(fft_data)) )
+    plot.setXRange(1, np.max(np.abs(freqs)) / 5)
+    plot.setYRange(0, np.max(np.abs(fft_data)) )
 
     plot.setTitle("Spectrogram"   )
     plot.setLabel('bottom', 'Freq')
