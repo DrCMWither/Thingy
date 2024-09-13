@@ -7,7 +7,9 @@ from PyQt5.QtWidgets import (QApplication,
                              QGridLayout,
                              QFormLayout,
                              QPushButton,
-                             QCheckBox)
+                             QCheckBox,
+                             QGroupBox,
+                             QTextEdit)
 from PyQt5.QtCore    import (Qt,
                              QTimer)
 import pyaudio
@@ -32,11 +34,30 @@ grid_layout.addWidget(plot, 0, 1)
 form_layout = QFormLayout()
 grid_layout.addLayout(form_layout, 0, 0)
 
+custom_input_edit = QTextEdit()
+custom_input_edit.setPlaceholderText("Enter Sine Waves (Frequency, Amplitude) per Line\n")
+grid_layout.addWidget(custom_input_edit, 1, 0)
 
-freq_line_edits =   []
-amp_line_edits =    []
-enable_checkboxes = []
-enabled_waves =     [True] * 10
+mute_group_box =        QGroupBox("Mute")
+mute_group_box_layout = QVBoxLayout()
+mute_group_box.setLayout(mute_group_box_layout)
+
+mute_predefined_waves_checkbox = QCheckBox("Predefined Waves")
+mute_custom_waves_checkbox =     QCheckBox("Custom Waves"    )
+
+mute_group_box_layout.addWidget(mute_predefined_waves_checkbox)
+mute_group_box_layout.addWidget(mute_custom_waves_checkbox    )
+
+grid_layout.addWidget(mute_group_box, 1, 1)
+
+
+freq_line_edits    = []
+amp_line_edits     = []
+enable_checkboxes  = []
+enabled_waves      = [True] * 10
+
+enabled_freq_edits = []
+enabled_amp_edits  = []
 
 for i in range(10):
     freq_edit = QLineEdit()
@@ -61,14 +82,39 @@ layout.addWidget(play_button)
 tau = 2 * np.pi
 fs = 44000
 
+def parse_custom_waves(text):
+    custom_waves = []
+    for line in text.splitlines():
+        try:
+            freq, amp = map(float, line.split(","))
+            custom_waves.append((freq, amp))
+        except ValueError:
+            print(f"Invalid format in custom input: {line}")
+            return []
+    return custom_waves
+
 def update_data():
     t = np.linspace(0, 1, fs, False)
     audio_data = np.zeros(fs)
 
-    freq_values = [float(freq_edit.text()) for i, freq_edit in enumerate(freq_line_edits) if enabled_waves[i]]
-    amp_values =  [float(amp_edit.text() ) for i, amp_edit  in enumerate(amp_line_edits ) if enabled_waves[i]]
 
-    for freq, amp in zip(freq_values, amp_values):
+    predefined_freq_values = [float(freq_edit.text()) for i, freq_edit in enumerate(freq_line_edits) if enabled_waves[i]]
+    predefined_amp_values =  [float(amp_edit.text() ) for i, amp_edit  in enumerate(amp_line_edits ) if enabled_waves[i]]
+
+
+    custom_waves = parse_custom_waves(custom_input_edit.toPlainText())
+    
+    if not custom_waves:
+        print("No custom waves provided.")
+        custom_freq_values = []
+        custom_amp_values =  []
+    else:
+        custom_freq_values, custom_amp_values = zip(*custom_waves)
+
+    all_freq_values = predefined_freq_values + list(custom_freq_values)
+    all_amp_values =  predefined_amp_values  + list(custom_amp_values )
+
+    for freq, amp in zip(all_freq_values, all_amp_values):
         try:
             audio_data += amp / 100  * np.sin(tau * freq * t)
         except ValueError:
@@ -77,13 +123,12 @@ def update_data():
     fft_data = np.fft.fft(audio_data)
     freqs = np.fft.fftfreq(len(audio_data), 1 / fs)
     return audio_data, freqs, fft_data
-
 def update_plot(audio_data, freqs, fft_data):
     plot.clear()
     plot.plot(freqs, np.abs(fft_data))
 
-    plot.setXRange(np.exp(0), np.exp(np.log(fs / 8))  )
-    plot.setYRange(0,         np.max(np.abs(fft_data)))
+    plot.setXRange(np.exp(0), np.max(np.abs(freqs)) / 5)
+    plot.setYRange(0,         np.max(np.abs(fft_data)) )
 
     plot.setTitle("Spectrogram"   )
     plot.setLabel('bottom', 'Freq')
@@ -92,6 +137,7 @@ def update_plot(audio_data, freqs, fft_data):
 def play_audio():
     global enabled_waves
     enabled_waves = [checkbox.isChecked() for checkbox in enable_checkboxes]
+    
     audio_data, freqs, fft_data = update_data()
     update_plot(audio_data, freqs, fft_data)
 
@@ -101,6 +147,7 @@ def play_audio():
     stream.close()
 
 p = pyaudio.PyAudio()
+
 
 for freq_edit, amp_edit in zip(freq_line_edits, amp_line_edits):
     freq_edit.textChanged.connect(update_data)
