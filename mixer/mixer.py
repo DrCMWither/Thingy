@@ -61,7 +61,7 @@ enabled_amp_edits  = []
 
 for i in range(10):
     freq_edit = QLineEdit()
-    freq_edit.setText("1000")
+    freq_edit.setText("440")
     amp_edit = QLineEdit()
     amp_edit.setText("50")
     enable_checkbox = QCheckBox("Enabled")
