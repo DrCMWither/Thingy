@@ -15,7 +15,8 @@ from PyQt5.QtCore    import (Qt,
 import pyaudio
 import numpy as np
 import pyqtgraph as pg
-
+from threading import Thread
+import threading
 
 app = QApplication(sys.argv)
 
@@ -77,7 +78,10 @@ for i in range(10):
 
 
 play_button = QPushButton("Play")
-layout.addWidget(play_button)
+grid_layout.addWidget(play_button, 2, 0)
+
+rt_play_box = QCheckBox("Realtime Play")
+grid_layout.addWidget(rt_play_box, 2, 1)
 
 tau = 2 * np.pi
 fs = 44000
@@ -99,7 +103,7 @@ def update_data():
 
     predefined_freq_values = [float(freq_edit.text()) for i, freq_edit in enumerate(freq_line_edits)
                               if enabled_waves[i] and not mute_predefined_waves_checkbox.isChecked()]
-    predefined_amp_values = [float(amp_edit.text()) for i, amp_edit in enumerate(amp_line_edits)
+    predefined_amp_values =  [float(amp_edit.text() ) for i, amp_edit  in enumerate(amp_line_edits )
                               if enabled_waves[i] and not mute_predefined_waves_checkbox.isChecked()]
 
 
@@ -117,33 +121,57 @@ def update_data():
 
     for freq, amp in zip(all_freq_values, all_amp_values):
         try:
-            audio_data += amp / 100  * np.sin(tau * freq * t)
+            audio_data += amp / 100 * np.sin(tau * freq * t)
         except ValueError:
             print("Invalid input!")
   
     fft_data = np.fft.fft(audio_data)
     freqs = np.fft.fftfreq(len(audio_data), 1 / fs)
     return audio_data, freqs, fft_data
+    
 def update_plot(audio_data, freqs, fft_data):
     plot.clear()
-    plot.plot(freqs, np.abs(fft_data))
+    plot.plot(np.abs(freqs), np.abs(fft_data))
 
-    plot.setXRange(1, np.max(np.abs(freqs)) / 5)
+    plot.setXRange(1, np.max(np.abs(freqs))    )
     plot.setYRange(0, np.max(np.abs(fft_data)) )
 
     plot.setTitle("Spectrogram"   )
     plot.setLabel('bottom', 'Freq')
     plot.setLabel('left',   'Amp' )
 
+stop_event = threading.Event()
+lock = threading.Lock()
+
 def play_audio():
-    global enabled_waves
+    global play_thread, enabled_waves
     enabled_waves = [checkbox.isChecked() for checkbox in enable_checkboxes]
-    
+
     audio_data, freqs, fft_data = update_data()
     update_plot(audio_data, freqs, fft_data)
 
+    play_thread = None
+
+    with lock:
+        if rt_play_box.isChecked():
+            if play_thread is None or not play_thread.is_alive():
+                stop_event.clear()
+                play_thread = Thread(target = play_audio_thread, args = (audio_data,))
+                play_thread.start()
+            else:
+                play_thread.join()
+                play_thread = None
+        else:
+            stop_event.set()
+            stream = p.open(format = pyaudio.paFloat32, channels = 1, rate = fs, output = True)
+            stream.write(audio_data.astype(np.float32).tobytes())
+            stream.stop_stream()
+            stream.close()
+
+def play_audio_thread(audio_data):
     stream = p.open(format = pyaudio.paFloat32, channels = 1, rate = fs, output = True)
-    stream.write(audio_data.astype(np.float32).tobytes())
+    while not stop_event.is_set():
+        stream.write(audio_data.astype(np.float32).tobytes())
     stream.stop_stream()
     stream.close()
 
