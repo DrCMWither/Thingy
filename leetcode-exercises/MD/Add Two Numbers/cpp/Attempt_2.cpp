@@ -30,7 +30,7 @@ public:
             return head -> next;
         }
         while (l1 || l2 || carry) {
-            int sum = (l1 ? l1->val : 0) + (l2 ? l2 -> val : 0) + carry;
+            int sum = (l1 ? l1 -> val : 0) + (l2 ? l2 -> val : 0) + carry;
             carry = sum / 10;
             ListNode* newNode = new ListNode(sum % 10);
             current -> next = newNode;
@@ -40,7 +40,7 @@ public:
             l2 = l2 ? l2 -> next : nullptr;
         }
 
-        return head->next;
+        return head -> next;
 
     }
 };
