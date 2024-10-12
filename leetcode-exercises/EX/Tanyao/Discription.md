@@ -4,7 +4,7 @@ Ichihime is playing mahjong and she is now doing a All Simple practice. She take
 
 **Input:** board = [[2,4,5,6,7,8,0,0,0,0,0,0,0,0],[2,3,4,4,5,6,0,0,0,0,0,0,0,0],[5,5,0,0,0,0,0,0,0,0,0,0,0,0]]
 **Output:** false, 1
-**Explanation:**** Replace the 2 in the first group with a 3 to form the pattern.
+**Explanation:**Replace the 2 in the first group with a 3 to form the pattern.
 
 **Example 2:**
 
