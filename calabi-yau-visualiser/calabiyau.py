@@ -2,16 +2,11 @@
     inspired by https://observablehq.com/@sw1227/calabi-yau-manifold-3d
 '''
 
-import sys
-import os
+from functools import cache
 import math
 import numpy as np
-import signal
-from functools import cache
-from mpl_toolkits.mplot3d import Axes3D
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
-from matplotlib.colors import ListedColormap
 
 def coordinate(x, y, n, k1, k2, a):
     z1 = np.exp(2j * math.pi * k1 / n) * np.cos(x + 1j * y) ** (2 / n)
