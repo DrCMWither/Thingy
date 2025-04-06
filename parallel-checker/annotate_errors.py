@@ -60,5 +60,5 @@ def annotate(score):
 score           = converter.parse("homework.musicxml")
 annotated_score = annotate(score)
 annotated_score.show()
-# call LiliPond
+# call LilyPond
 annotated_score.write('lily.pdf', fp = 'annotated.pdf')
