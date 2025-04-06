@@ -52,8 +52,8 @@ def annotate(pairs):
     for pair in pairs:
         n1, n2   = pair['n1'],      pair['n2']
         n1n, n2n = pair['n1_next'], pair['n2_next']
-        intvl1 = interval.Interval(n2 , n1 ).simpleName
-        intvl2 = interval.Interval(n2n, n1n).simpleName
+        intvl1   = interval.Interval(n2 , n1 ).simpleName
+        intvl2   = interval.Interval(n2n, n1n).simpleName
 
         def mark(note_obj, text, color):
             note_obj.style.color = color
@@ -77,11 +77,11 @@ def annotate(pairs):
 
         elif is_hidden(n1, n2, n1n, n2n, 'P5'):
             mark(n1n, 'hidden 5th', 'orange')
-            error_list.append((measure, offset, voice_pair, 'Hidden 5th', n1n.nameWithOctave, n2n.nameWithOctave))
+            error_list.append((measure, offset, voice_pair, 'Hidden 5th',  n1n.nameWithOctave, n2n.nameWithOctave))
 
         elif is_hidden(n1, n2, n1n, n2n, 'P8'):
             mark(n1n, 'hidden 8ve', 'orange')
-            error_list.append((measure, offset, voice_pair, 'Hidden 8ve', n1n.nameWithOctave, n2n.nameWithOctave))
+            error_list.append((measure, offset, voice_pair, 'Hidden 8ve',  n1n.nameWithOctave, n2n.nameWithOctave))
 
     return error_list
 
