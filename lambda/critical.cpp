@@ -10,8 +10,8 @@
 #include <memory>
 
 enum class TermType {VAR,
-               LAM,
-               APP
+                     LAM,
+                     APP
               };
 
 class LambdaTerm {
