@@ -1,0 +1,2 @@
+This folder contains a complete archive of POPC Membrane simulation files for GROMACS.
+md_in.gro = popc.itp
