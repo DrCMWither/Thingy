@@ -148,9 +148,9 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            width: 100%; /* 铺满宽度 */
-            height: 400px; /* 限制高度，只渲染中间区域 */
-            z-index: -1; /* 在文字后面，但在 bar 前面(可选) */
+            width: 100%;
+            height: 400px;
+            z-index: -1;
             pointer-events: none;
             opacity: 0;
             animation: barFadeIn 1s ease-out forwards;
@@ -180,7 +180,7 @@
     container.innerHTML = `
         <canvas id="er-gl-canvas"></canvas>
         <div class="er-backing-bar"></div>
-        <h1 class="er-souls-text" data-text="NEW TAB OPENED">LOST GRACE DISCOVERED</h1>
+        <h1 class="er-souls-text" data-text="NEW TAB OPENED">NEW TAB OPENED</h1>
     `;
     document.body.appendChild(container);
 
