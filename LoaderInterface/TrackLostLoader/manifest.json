@@ -1,21 +1,39 @@
 {
-    "manifest_version": 3,
-    "name": "Track Lost Error Loader",
-    "version": "1.0",
-    "description": "Displays 'track lost' animation on 4xx/5xx err.",
-    "author": "Lilia C M Wither",
-
-    "content_scripts": [
-      {
-        "matches": ["<all_urls>"],
-        "js": ["content.js"],
-        "run_at": "document_end"
-      }
-    ],
-    "web_accessible_resources": [
-      {
-        "resources": ["Title-tracklost.webp","track_lost.mp3"],
-        "matches": ["<all_urls>"]
-      }
-    ]
-  }
+  "manifest_version": 3,
+  "name": "Track Lost Error Loader",
+  "version": "1.1",
+  "description": "Displays 'track lost' animation on 4xx/5xx errors.",
+  "author": "Lilia C M Wither",
+  "icons": {
+    "48": "icon.png"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "<all_urls>"
+      ],
+      "js": [
+        "content.js"
+      ],
+      "run_at": "document_end"
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "Title-tracklost.webp",
+        "track_fail.wav",
+        "res_fail_full.ogg",
+        "res_fail_loop.ogg",
+        "end_mid_f.png",
+        "clear_fail.png",
+        "pausebg.png",
+        "stripe_top.png",
+        "stripe_bottom.png"
+      ],
+      "matches": [
+        "<all_urls>"
+      ]
+    }
+  ]
+}

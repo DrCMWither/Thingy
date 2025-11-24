@@ -1,24 +1,32 @@
 {
-    "manifest_version": 3,
-    "name": "Elden Ring Grace Loader",
-    "version": "1.0",
-    "description": "Displays 'NEW TAB OPENED' animation on every page load.",
-    "author": "Lilia C M Wither",
-
-    "icons": {
-        "48": "icon.png"
-    },
-    "content_scripts": [
-      {
-        "matches": ["<all_urls>"],
-        "js": ["content.js"],
-        "run_at": "document_end"
-      }
-    ],
-    "web_accessible_resources": [
-      {
-        "resources": ["Agmena Pro Regular.ttf","elden_ring_sound.mp3"],
-        "matches": ["<all_urls>"]
-      }
-    ]
-  }
+  "manifest_version": 3,
+  "name": "Elden Ring Grace Loader",
+  "version": "1.0",
+  "description": "Displays 'NEW TAB OPENED' animation on every page load.",
+  "author": "Lilia C M Wither",
+  "icons": {
+    "48": "icon.png"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "<all_urls>"
+      ],
+      "js": [
+        "content.js"
+      ],
+      "run_at": "document_end"
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "Agmena Pro Regular.ttf",
+        "elden_ring_sound.mp3"
+      ],
+      "matches": [
+        "<all_urls>"
+      ]
+    }
+  ]
+}

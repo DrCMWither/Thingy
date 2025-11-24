@@ -155,9 +155,9 @@
         }
 
         @keyframes textEntrance {
-            0% { opacity: 0; transform: scale(1.2); letter-spacing: 0em; transform: scale(1.0, 1.2);}
+            0% { opacity: 0; transform: scale(1.2); letter-spacing: 0em; transform: scale(1.2, 1.2);}
             15% { opacity: 1; }
-            100% { opacity: 1; transform: scale(1.0); letter-spacing: 0.05em; transform: scale(0.85, 1.0);}
+            100% { opacity: 1; transform: scale(1.0); letter-spacing: 0.05em; transform: scale(1.0, 1.0);}
         }
 
         @keyframes barFadeIn {
