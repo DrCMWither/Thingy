@@ -1,54 +1,74 @@
 (function() {
     const REMOVE_DELAY = 50000;
     const STRIPE_OFFSET_PX = 140;
-    const AUDIO_TRACK_LOST = chrome.runtime.getURL("track_fail.wav");
-    const AUDIO_FAIL_FULL = chrome.runtime.getURL("res_fail_full.ogg");
-    const AUDIO_FAIL_LOOP = chrome.runtime.getURL("res_fail_loop.ogg");
+    const AUDIO_TRACK_LOST = chrome.runtime.getURL("assets/track_fail.wav");
+    const AUDIO_FAIL_FULL = chrome.runtime.getURL("assets/res_fail_full.ogg");
+    const AUDIO_FAIL_LOOP = chrome.runtime.getURL("assets/res_fail_loop.ogg");
 
-    const IMG_END_MID_F = chrome.runtime.getURL("end_mid_f.png");
-    const IMG_CLEAR_FAIL = chrome.runtime.getURL("clear_fail.png");
-    const IMG_STRIPE_TOP = chrome.runtime.getURL("stripe_top.png");
-    const IMG_STRIPE_BOTTOM = chrome.runtime.getURL("stripe_bottom.png");
-    const IMG_PAUSE_BG = chrome.runtime.getURL("pausebg.png");
+    const IMG_END_MID_F = chrome.runtime.getURL("assets/end_mid_f.png");
+    const IMG_CLEAR_FAIL = chrome.runtime.getURL("assets/clear_fail.png");
+    const IMG_STRIPE_TOP = chrome.runtime.getURL("assets/stripe_top.png");
+    const IMG_STRIPE_BOTTOM = chrome.runtime.getURL("assets/stripe_bottom.png");
+    const IMG_PAUSE_BG = chrome.runtime.getURL("assets/pausebg.png");
 
-    let currentAudio = null;
+    let audioCtx = null;
+    let masterGain = null;
 
-    function playSoundSequence() {
-        const audio1 = new Audio(AUDIO_TRACK_LOST);
-        audio1.volume = 0.6;
-        currentAudio = audio1;
-
-        audio1.addEventListener('ended', () => {
-            if (!document.getElementById('tracklost-container')) return;
-
-            const audio2 = new Audio(AUDIO_FAIL_FULL);
-            audio2.volume = 0.6;
-            currentAudio = audio2;
-
-            audio2.addEventListener('ended', () => {
-                if (!document.getElementById('tracklost-container')) return;
-
-                const audio3 = new Audio(AUDIO_FAIL_LOOP);
-                audio3.volume = 0.6;
-                audio3.loop = true;
-                currentAudio = audio3;
-
-                audio3.play().catch(e => console.log("Loop Audio blocked:", e));
-            });
-
-            audio2.play().catch(e => console.log("Full Audio blocked:", e));
-        });
-
-        audio1.play().catch(error => {
-            console.log("Initial Audio blocked by browser policy:", error);
-        });
+    async function loadAudioBuffer(ctx, url) {
+        const response = await fetch(url);
+        const buffer = await response.arrayBuffer();
+        return await ctx.decodeAudioData(buffer);
     }
 
-    function stopCurrentAudio() {
-        if (currentAudio) {
-            currentAudio.pause();
-            currentAudio.currentTime = 0;
-            currentAudio = null;
+    async function playSoundSequence() {
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        audioCtx = new AudioContext();
+        masterGain = audioCtx.createGain();
+        masterGain.gain.value = 0.6;
+        masterGain.connect(audioCtx.destination);
+
+        try {
+            const [b1, b2, b3] = await Promise.all([
+                loadAudioBuffer(audioCtx, AUDIO_TRACK_LOST),
+                loadAudioBuffer(audioCtx, AUDIO_FAIL_FULL),
+                loadAudioBuffer(audioCtx, AUDIO_FAIL_LOOP)
+            ]);
+
+            const s1 = audioCtx.createBufferSource(); s1.buffer = b1;
+            const s2 = audioCtx.createBufferSource(); s2.buffer = b2;
+            const s3 = audioCtx.createBufferSource(); s3.buffer = b3; s3.loop = true;
+
+            s1.connect(masterGain);
+            s2.connect(masterGain);
+            s3.connect(masterGain);
+
+            const now = audioCtx.currentTime;
+            s1.start(now);
+            s2.start(now + b1.duration);
+            s3.start(now + b1.duration + b2.duration);
+
+        } catch (e) {
+            console.error("Audio failed:", e);
+        }
+    }
+
+    function fadeOutAudio(duration = 1) {
+        if (!audioCtx || !masterGain) return;
+
+        try {
+            const now = audioCtx.currentTime;
+            masterGain.gain.setValueAtTime(masterGain.gain.value, now);
+            masterGain.gain.linearRampToValueAtTime(0, now + duration);
+        } catch (e) {
+            console.log("Fade out error", e);
+        }
+    }
+
+    function cleanupAudio() {
+        if (audioCtx) {
+            if (audioCtx.state !== 'closed') audioCtx.close();
+            audioCtx = null;
+            masterGain = null;
         }
     }
 
@@ -83,6 +103,7 @@
                 width: 100%;
                 height: 100%;
                 object-fit: cover;
+                transform: scale(1.2);
             }
 
             .tl-group-2 {
@@ -144,42 +165,23 @@
             }
         `;
         document.head.appendChild(style);
-
         const container = document.createElement('div');
         container.id = 'tracklost-container';
-
-        const group3 = document.createElement('div');
-        group3.className = 'tl-group-3';
-        group3.innerHTML = `<img src="${IMG_PAUSE_BG}" alt="Background">`;
-
-        const group2 = document.createElement('div');
-        group2.className = 'tl-group-2';
-        group2.innerHTML = `
-            <img src="${IMG_STRIPE_TOP}" class="tl-stripe tl-stripe-top" alt="Stripe Top">
-            <img src="${IMG_STRIPE_BOTTOM}" class="tl-stripe tl-stripe-bottom" alt="Stripe Bottom">
-        `;
-
-        const group1 = document.createElement('div');
-        group1.className = 'tl-group-1';
-        group1.innerHTML = `
-            <img src="${IMG_END_MID_F}" class="tl-img-end-mid" alt="End Mid">
-            <img src="${IMG_CLEAR_FAIL}" class="tl-img-clear-fail" alt="Fail Text">
-        `;
-
-        container.appendChild(group3);
-        container.appendChild(group2);
-        container.appendChild(group1);
-
+        const group3 = document.createElement('div'); group3.className = 'tl-group-3'; group3.innerHTML = `<img src="${IMG_PAUSE_BG}" alt="Background">`;
+        const group2 = document.createElement('div'); group2.className = 'tl-group-2'; group2.innerHTML = `<img src="${IMG_STRIPE_TOP}" class="tl-stripe tl-stripe-top"><img src="${IMG_STRIPE_BOTTOM}" class="tl-stripe tl-stripe-bottom">`;
+        const group1 = document.createElement('div'); group1.className = 'tl-group-1'; group1.innerHTML = `<img src="${IMG_END_MID_F}" class="tl-img-end-mid"><img src="${IMG_CLEAR_FAIL}" class="tl-img-clear-fail">`;
+        container.appendChild(group3); container.appendChild(group2); container.appendChild(group1);
         document.body.appendChild(container);
 
         setTimeout(() => {
             container.classList.add('fade-out');
-
+            fadeOutAudio(1.0);
             setTimeout(() => {
-                stopCurrentAudio();
+                cleanupAudio()
                 container.remove();
                 style.remove();
             }, 1000);
+
         }, REMOVE_DELAY);
     }
 

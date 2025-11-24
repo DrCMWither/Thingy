@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Track Lost Error Loader",
-  "version": "1.1",
+  "version": "1.2",
   "description": "Displays 'track lost' animation on 4xx/5xx errors.",
   "author": "Lilia C M Wither",
   "icons": {
@@ -21,15 +21,15 @@
   "web_accessible_resources": [
     {
       "resources": [
-        "Title-tracklost.webp",
-        "track_fail.wav",
-        "res_fail_full.ogg",
-        "res_fail_loop.ogg",
-        "end_mid_f.png",
-        "clear_fail.png",
-        "pausebg.png",
-        "stripe_top.png",
-        "stripe_bottom.png"
+        "assets/Title-tracklost.webp",
+        "assets/track_fail.wav",
+        "assets/res_fail_full.ogg",
+        "assets/res_fail_loop.ogg",
+        "assets/end_mid_f.png",
+        "assets/clear_fail.png",
+        "assets/pausebg.png",
+        "assets/stripe_top.png",
+        "assets/stripe_bottom.png"
       ],
       "matches": [
         "<all_urls>"
