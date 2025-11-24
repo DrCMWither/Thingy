@@ -48,12 +48,10 @@
         }
 
         .er-backing-bar {
-            position: absolute;
             width: 100%;
-            height: 200px;
+            height: 100px;
 
             background: linear-gradient(
-
                 rgba(0,0,0,0) 0%,
                 rgba(0,0,0,0.8) 13%,
                 rgba(0,0,0,0.8) 85%,
@@ -77,19 +75,20 @@
 
             filter: blur(2px);
 
-            z-index: -2;
             opacity: 0;
             animation: barFadeIn 0.5s ease-out 0.5s forwards;
         }
 
+
         .er-souls-text {
+            position: absolute;
             font-family: 'Agmena Pro Regular', serif;
             font-size: 4rem;
-            margin: 0;
+
             padding: 0 2rem;
             text-transform: uppercase;
             white-space: nowrap;
-            position: relative;
+
             z-index: 10;
 
             background: #d8c472;
@@ -97,7 +96,6 @@
             background-clip: text;
             color: transparent;
 
-            /* 光晕 */
             filter:
                 drop-shadow(0 0 2px rgba(0,0,0,1.0))
                 drop-shadow(0 0 10px rgba(212,191,105,0.5));
@@ -105,6 +103,7 @@
             opacity: 0;
             animation: textEntrance 3.5s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
         }
+
         .er-souls-text::after {
             content: attr(data-text);
 
@@ -136,20 +135,19 @@
                 opacity: 0.6;
             }
             100% {
-                opacity: 0.1;
+                opacity: 1;
                 transform: translate(-50%, -50%) scale(1.01);
                 letter-spacing: 0.2em;
             }
         }
 
-        /* Shader canvas */
         #er-gl-canvas {
             position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
             width: 100%;
-            height: 400px;
+            height: 200px;
             z-index: -1;
             pointer-events: none;
             opacity: 0;
@@ -264,7 +262,7 @@
             if (frameId) cancelAnimationFrame(frameId);
             container.remove();
             style.remove();
-        }, 1000); 
+        }, 1000);
     }, REMOVE_DELAY);
 
 })();
